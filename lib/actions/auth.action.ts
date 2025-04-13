@@ -5,6 +5,10 @@ import { cookies } from "next/headers";
 
 // Session duration (1 week)
 const SESSION_DURATION = 60 * 60 * 24 * 7;
+interface FirebaseError extends Error {
+  code?: string;
+  message: string;
+}
 
 // Set session cookie
 export async function setSessionCookie(idToken: string) {
@@ -49,11 +53,12 @@ export async function signUp(params: SignUpParams) {
       success: true,
       message: "Account created successfully. Please sign in.",
     };
-  } catch (error: any) {
-    console.error("Error creating user:", error);
+  } catch (error: unknown) {
+    const firebaseError = error as FirebaseError;
+    console.error("Error creating user:", firebaseError);
 
     // Handle Firebase specific errors
-    if (error.code === "auth/email-already-exists") {
+    if (firebaseError.code === "auth/email-already-exists") {
       return {
         success: false,
         message: "This email is already in use",
@@ -84,8 +89,9 @@ export async function signIn(params: SignInParams) {
       success: true,
       message: "Successfully signed in",
     };
-  } catch (error: any) {
-    console.error("Sign in error:", error);
+  } catch (error: unknown) {
+    const firebaseError = error as FirebaseError;
+    console.error("Sign in error:", firebaseError);
 
     return {
       success: false,
@@ -122,7 +128,7 @@ export async function getCurrentUser(): Promise<User | null> {
       ...userRecord.data(),
       id: userRecord.id,
     } as User;
-  } catch (error) {
+  } catch (error: unknown) {
     console.log(error);
 
     // Invalid or expired session

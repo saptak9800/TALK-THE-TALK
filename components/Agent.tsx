@@ -40,8 +40,8 @@ const Agent = ({ userName }: AgentProps) => {
               height={539}
               className="rounded-full object-cover size-[120px]"
             />
+            <h3>{userName}</h3>
           </div>
-          <h3>{userName}</h3>
         </div>
       </div>
       {messages.length > 0 && (
